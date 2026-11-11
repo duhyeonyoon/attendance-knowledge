@@ -1,0 +1,109 @@
+---
+// Starlight 기본 Header + 사이트 제목 옆 KB / 명세서 탭
+import Search from '@astrojs/starlight/components/Search.astro';
+import SiteTitle from '@astrojs/starlight/components/SiteTitle.astro';
+import SocialIcons from '@astrojs/starlight/components/SocialIcons.astro';
+import ThemeSelect from '@astrojs/starlight/components/ThemeSelect.astro';
+import LanguageSelect from '@astrojs/starlight/components/LanguageSelect.astro';
+import { isSpecPath } from '../route-data';
+
+const spec = isSpecPath(Astro.url.pathname);
+const tabs = [
+  { label: 'KB', href: '/', active: !spec },
+  { label: '명세서', href: '/spec/readme/', active: spec },
+];
+---
+
+<div class="header">
+  <div class="title-wrapper sl-flex">
+    <SiteTitle />
+    <nav class="kb-tabs" aria-label="문서 종류">
+      {tabs.map((t) => (
+        <a href={t.href} aria-current={t.active ? 'page' : undefined}>{t.label}</a>
+      ))}
+    </nav>
+  </div>
+  <div class="sl-flex print:hidden"><Search /></div>
+  <div class="sl-hidden md:sl-flex print:hidden right-group">
+    <div class="sl-flex social-icons"><SocialIcons /></div>
+    <ThemeSelect />
+    <LanguageSelect />
+  </div>
+</div>
+
+<style>
+  .header {
+    display: flex;
+    gap: var(--sl-nav-gap);
+    justify-content: space-between;
+    align-items: center;
+    height: 100%;
+  }
+  .title-wrapper {
+    overflow: clip;
+    padding: 0.25rem;
+    margin: -0.25rem;
+    min-width: 0;
+    align-items: center;
+    gap: 1rem;
+  }
+  .right-group,
+  .social-icons {
+    gap: 1rem;
+    align-items: center;
+  }
+  .social-icons:empty { display: none; }
+
+  /* 토스식 세그먼트 컨트롤 (색 토큰은 styles/custom.css) */
+  .kb-tabs {
+    display: flex;
+    flex-shrink: 0;
+    gap: 0.125rem;
+    padding: 0.25rem;
+    border-radius: 12px;
+    background: var(--t-surface-2, var(--sl-color-gray-6));
+  }
+  .kb-tabs a {
+    padding: 0.35rem 0.9rem;
+    border-radius: 9px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    color: var(--t-text-sub, var(--sl-color-gray-3));
+    text-decoration: none;
+    white-space: nowrap;
+    transition: background 0.15s ease, color 0.15s ease;
+  }
+  .kb-tabs a:hover { color: var(--sl-color-white); }
+  .kb-tabs a[aria-current='page'] {
+    background: var(--sl-color-black);
+    color: var(--sl-color-white);
+    font-weight: 700;
+    box-shadow: 0 1px 3px rgb(0 0 0 / 0.08);
+  }
+
+  @media (min-width: 50rem) {
+    :global(:root[data-has-sidebar]) {
+      --__sidebar-pad: calc(2 * var(--sl-nav-pad-x));
+    }
+    :global(:root:not([data-has-toc])) {
+      --__toc-width: 0rem;
+    }
+    .header {
+      --__sidebar-width: max(0rem, var(--sl-content-inline-start, 0rem) - var(--sl-nav-pad-x));
+      --__main-column-fr: calc(
+        (
+            100% + var(--__sidebar-pad, 0rem) - var(--__toc-width, var(--sl-sidebar-width)) -
+              (2 * var(--__toc-width, var(--sl-nav-pad-x))) - var(--sl-content-inline-start, 0rem) -
+              var(--sl-content-width)
+          ) / 2
+      );
+      display: grid;
+      grid-template-columns:
+        minmax(calc(var(--__sidebar-width) + max(0rem, var(--__main-column-fr) - var(--sl-nav-gap))), auto)
+        1fr
+        auto;
+      align-content: center;
+    }
+  }
+</style>
